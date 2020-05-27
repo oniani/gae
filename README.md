@@ -43,16 +43,17 @@ python train.py
 
 ## Data
 
-| Extension | Description                                                                            |
-| --------- | -------------------------------------------------------------------------------------- |
-| x         | the feature vectors of the labeled training instances                                  |
-| y         | the one-hot labels of the labeled training instances                                   |
-| allx      | the feature vectors of both labeled and unlabeled training instances (a superset of x) |
-| graph     | a dict in the format {index: [index_of_neighbor_nodes]}                                |
+| Extension    | Description                                                                                                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allx`       | The feature vectors of both labeled and unlabeled training instances (a superset of x)                                                                            |
+| `graph`      | Graph, a dict in the format {index: [index_of_neighbor_nodes]}, where the neighbor nodes are organized as a list. The current version only supports binary graphs |
+| `test.index` | The indices of test instances in graph, for the inductive setting                                                                                                 |
+| `tx`         | The feature vectors of the test instances                                                                                                                         |
+| `x`          | The feature vectors of the labeled training instances                                                                                                             |
 
 Let n be the number of both labeled and unlabeled training instances.
 These n instances should be indexed from 0 to n - 1 in graph with the same
-order as in allx.
+order as `in allx`.
 
 There are two types of the data files:
 
