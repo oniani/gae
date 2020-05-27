@@ -54,6 +54,11 @@ Let n be the number of both labeled and unlabeled training instances.
 These n instances should be indexed from 0 to n - 1 in graph with the same
 order as in allx.
 
+There are two types of the data files:
+
+1. `ind.name.extension`
+2. `ind.name.text.extension` (usually if the extension is `index`)
+
 In order to use your own data, you have to provide
 
 - an N by N adjacency matrix (N is the number of nodes), and
