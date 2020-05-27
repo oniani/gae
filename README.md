@@ -43,12 +43,16 @@ python train.py
 
 ## Data
 
-```
-x - the feature vectors of the labeled training instances
-y - the one-hot labels of the labeled training instances
-allx - the feature vectors of both labeled and unlabeled training instances (a superset of x)
-graph - a dict in the format {index: [index_of_neighbor_nodes]}
-```
+| Extension | Description                                                                            |
+| --------- | -------------------------------------------------------------------------------------- |
+| x         | the feature vectors of the labeled training instances                                  |
+| y         | the one-hot labels of the labeled training instances                                   |
+| allx      | the feature vectors of both labeled and unlabeled training instances (a superset of x) |
+| graph     | a dict in the format {index: [index_of_neighbor_nodes]}                                |
+
+Let n be the number of both labeled and unlabeled training instances.
+These n instances should be indexed from 0 to n - 1 in graph with the same
+order as in allx.
 
 In order to use your own data, you have to provide
 
