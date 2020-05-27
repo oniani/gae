@@ -47,6 +47,7 @@ def main() -> None:
         f"{PATH}/{DATASET}.content", dtype=np.dtype(str)
     )
 
+    # No normalization (one could potentially apply normalization though)
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
     labels = encode_onehot(idx_features_labels[:, -1])
 
@@ -72,30 +73,39 @@ def main() -> None:
     idx_test = range(500, 1500)
 
     # Save the files
-    pickle.dump(features[idx_train], open(f"{SAVE_ROOT}/ind.cora.x", "wb"))
+    pickle.dump(
+        features[idx_train], open(f"{SAVE_ROOT}/ind.{DATASET}.x", "wb")
+    )
+
     pickle.dump(
         sp.vstack((features[: idx_test[0]], features[idx_test[-1] + 1 :])),
-        open(f"{SAVE_ROOT}/ind.cora.allx", "wb"),
+        open(f"{SAVE_ROOT}/ind.{DATASET}.allx", "wb"),
     )
-    pickle.dump(features[idx_test], open(f"{SAVE_ROOT}/ind.cora.tx", "wb"))
 
-    pickle.dump(labels[idx_train], open(f"{SAVE_ROOT}/ind.cora.y", "wb"))
-    pickle.dump(labels[idx_test], open(f"{SAVE_ROOT}/ind.cora.ty", "wb"))
+    pickle.dump(
+        features[idx_test], open(f"{SAVE_ROOT}/ind.{DATASET}.tx", "wb")
+    )
+
+    pickle.dump(labels[idx_train], open(f"{SAVE_ROOT}/ind.{DATASET}.y", "wb"))
+
+    pickle.dump(labels[idx_test], open(f"{SAVE_ROOT}/ind.{DATASET}.ty", "wb"))
+
     pickle.dump(
         np.vstack((labels[: idx_test[0]], labels[idx_test[-1] + 1 :])),
-        open(f"{SAVE_ROOT}/ind.cora.ally", "wb"),
+        open(f"{SAVE_ROOT}/ind.{DATASET}.ally", "wb"),
     )
 
-    with open(f"{SAVE_ROOT}/ind.cora.test.index", "w") as file:
+    with open(f"{SAVE_ROOT}/ind.{DATASET}.test.index", "w") as file:
         for item in list(idx_test):
-            file.write("%s\n" % item)
+            file.write(f"{item}\n")
 
     # Save the graph
     array_adj = np.argwhere(adj.toarray())
-    ori_graph = defaultdict(list)
+    graph = defaultdict(list)
     for edge in array_adj:
-        ori_graph[edge[0]].append(edge[1])
-    pickle.dump(ori_graph, open(f"{SAVE_ROOT}/ind.cora.graph", "wb"))
+        graph[edge[0]].append(edge[1])
+
+    pickle.dump(graph, open(f"{SAVE_ROOT}/ind.{DATASET}.graph", "wb"))
 
 
 if __name__ == "__main__":
