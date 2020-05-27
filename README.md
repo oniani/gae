@@ -1,28 +1,25 @@
-Graph Auto-Encoders
-============
+# Graph Auto-Encoders
 
 This is a TensorFlow implementation of the (Variational) Graph Auto-Encoder model as described in our paper:
- 
+
 T. N. Kipf, M. Welling, [Variational Graph Auto-Encoders](https://arxiv.org/abs/1611.07308), NIPS Workshop on Bayesian Deep Learning (2016)
 
-Graph Auto-Encoders (GAEs) are end-to-end trainable neural network models for unsupervised learning, clustering and link prediction on graphs. 
+Graph Auto-Encoders (GAEs) are end-to-end trainable neural network models for unsupervised learning, clustering and link prediction on graphs.
 
 ![(Variational) Graph Auto-Encoder](figure.png)
 
 GAEs have successfully been used for:
-* Link prediction in large-scale relational data: M. Schlichtkrull & T. N. Kipf et al., [Modeling Relational Data with Graph Convolutional Networks](https://arxiv.org/abs/1703.06103) (2017),
-* Matrix completion / recommendation with side information: R. Berg et al., [Graph Convolutional Matrix Completion](https://arxiv.org/abs/1706.02263) (2017).
 
+- Link prediction in large-scale relational data: M. Schlichtkrull & T. N. Kipf et al., [Modeling Relational Data with Graph Convolutional Networks](https://arxiv.org/abs/1703.06103) (2017),
+- Matrix completion / recommendation with side information: R. Berg et al., [Graph Convolutional Matrix Completion](https://arxiv.org/abs/1706.02263) (2017).
 
 GAEs are based on Graph Convolutional Networks (GCNs), a recent class of models for end-to-end (semi-)supervised learning on graphs:
 
-T. N. Kipf, M. Welling, [Semi-Supervised Classification with Graph Convolutional Networks](https://arxiv.org/abs/1609.02907), ICLR (2017). 
+T. N. Kipf, M. Welling, [Semi-Supervised Classification with Graph Convolutional Networks](https://arxiv.org/abs/1609.02907), ICLR (2017).
 
 A high-level introduction is given in our blog post:
 
 Thomas Kipf, [Graph Convolutional Networks](http://tkipf.github.io/graph-convolutional-networks/) (2016)
-
-
 
 ## Installation
 
@@ -31,11 +28,12 @@ python setup.py install
 ```
 
 ## Requirements
-* TensorFlow (1.0 or later)
-* python 2.7
-* networkx
-* scikit-learn
-* scipy
+
+- TensorFlow (1.0 or later)
+- python 2.7
+- networkx
+- scikit-learn
+- scipy
 
 ## Run the demo
 
@@ -45,9 +43,17 @@ python train.py
 
 ## Data
 
-In order to use your own data, you have to provide 
-* an N by N adjacency matrix (N is the number of nodes), and
-* an N by D feature matrix (D is the number of features per node) -- optional
+```
+x - the feature vectors of the labeled training instances
+y - the one-hot labels of the labeled training instances
+allx - the feature vectors of both labeled and unlabeled training instances (a superset of x)
+graph - a dict in the format {index: [index_of_neighbor_nodes]}
+```
+
+In order to use your own data, you have to provide
+
+- an N by N adjacency matrix (N is the number of nodes), and
+- an N by D feature matrix (D is the number of features per node) -- optional
 
 Have a look at the `load_data()` function in `input_data.py` for an example.
 
@@ -63,9 +69,10 @@ python train.py --dataset citeseer
 
 ## Models
 
-You can choose between the following models: 
-* `gcn_ae`: Graph Auto-Encoder (with GCN encoder)
-* `gcn_vae`: Variational Graph Auto-Encoder (with GCN encoder)
+You can choose between the following models:
+
+- `gcn_ae`: Graph Auto-Encoder (with GCN encoder)
+- `gcn_vae`: Variational Graph Auto-Encoder (with GCN encoder)
 
 ## Cite
 
