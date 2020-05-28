@@ -1,41 +1,54 @@
-import numpy as np
-import sys
-import pickle as pkl
-import networkx as nx
 import scipy.sparse as sp
+import numpy as np
 
 
-def parse_index_file(filename):
-    index = []
-    for line in open(filename):
-        index.append(int(line.strip()))
-    return index
+def encode_onehot(labels):
+    classes = set(labels)
+    classes_dict = {
+        c: np.identity(len(classes))[i, :] for i, c in enumerate(classes)
+    }
+    labels_onehot = np.array(
+        list(map(classes_dict.get, labels)), dtype=np.int32
+    )
+    return labels_onehot
 
 
-def load_data(dataset):
-    # load the data: x, tx, allx, graph
-    names = ['x', 'tx', 'allx', 'graph']
-    objects = []
-    for i in range(len(names)):
-        with open("data/ind.{}.{}".format(dataset, names[i]), 'rb') as f:
-            if sys.version_info > (3, 0):
-                objects.append(pkl.load(f, encoding='latin1'))
-            else:
-                objects.append(pkl.load(f))
-    x, tx, allx, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset))
-    test_idx_range = np.sort(test_idx_reorder)
+def load_data(dataset="covid"):
+    """Load citation network dataset (cora only for now)"""
 
-    if dataset == 'citeseer':
-        # Fix citeseer dataset (there are some isolated nodes in the graph)
-        # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
-        tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-min(test_idx_range), :] = tx
-        tx = tx_extended
+    print("Loading {} dataset...".format(dataset))
 
-    features = sp.vstack((allx, tx)).tolil()
-    features[test_idx_reorder, :] = features[test_idx_range, :]
-    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
+    idx_features_labels = np.genfromtxt(
+        f"data/{dataset}.content", dtype=np.dtype(str), delimiter=","
+    )
 
-    return adj, features
+    features = sp.csr_matrix(idx_features_labels[:, 2], dtype=np.float32)
+    labels = encode_onehot(idx_features_labels[:, 1])
+
+    # build graph
+    idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+
+    idx_map = {j: i for i, j in enumerate(idx)}
+
+    edges_unordered = np.genfromtxt(f"data/{dataset}.cites", dtype=np.int32)
+
+    edges = np.array(
+        list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32
+    ).reshape(edges_unordered.shape)
+
+    adj = sp.coo_matrix(
+        (np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+        shape=(labels.shape[0], labels.shape[0]),
+        dtype=np.float32,
+    )
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    print(
+        "Dataset has {} nodes, {} edges, {} features.".format(
+            adj.shape[0], edges.shape[0], features.shape[1]
+        )
+    )
+
+    return adj, features.todense()
