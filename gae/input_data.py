@@ -1,5 +1,6 @@
 import scipy.sparse as sp
 import numpy as np
+import networkx as nx
 
 
 def encode_onehot(labels):
@@ -13,42 +14,40 @@ def encode_onehot(labels):
     return labels_onehot
 
 
+def read_emb(filename: str):
+    """Reads the embeddings."""
+
+    x = []
+    y = []
+
+    # Open embedding file
+    with open(filename) as file:
+        next(file)
+        for line in file:
+            splits = line.strip().split()
+            label = splits[0]
+            vec = [float(v) for v in splits[1:]]
+
+            x.append(vec)
+            y.append(label)
+
+    return dict(zip(y, x))
+
+
 def load_data(dataset="covid"):
     """Load citation network dataset (cora only for now)"""
 
     print("Loading {} dataset...".format(dataset))
 
     idx_features_labels = np.genfromtxt(
-        f"data/{dataset}.content", dtype=np.dtype(str), delimiter=","
+        "data/{}.content".format(dataset), dtype=np.dtype(str), delimiter=","
     )
 
-    features = sp.csr_matrix(idx_features_labels[:, 2], dtype=np.float32)
-    labels = encode_onehot(idx_features_labels[:, 1])
+    features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    graph = read_emb("data/{}-nodupe.emd".format(dataset))
 
-    # build graph
-    idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
-    idx_map = {j: i for i, j in enumerate(idx)}
-
-    edges_unordered = np.genfromtxt(f"data/{dataset}.cites", dtype=np.int32)
-
-    edges = np.array(
-        list(map(idx_map.get, edges_unordered.flatten())), dtype=np.int32
-    ).reshape(edges_unordered.shape)
-
-    adj = sp.coo_matrix(
-        (np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
-        shape=(labels.shape[0], labels.shape[0]),
-        dtype=np.float32,
-    )
-
-    # build symmetric adjacency matrix
-    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-
-    print(
-        "Dataset has {} nodes, {} edges, {} features.".format(
-            adj.shape[0], edges.shape[0], features.shape[1]
-        )
-    )
+    print("Done loading the data!")
 
     return adj, features.todense()
